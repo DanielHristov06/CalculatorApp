@@ -3,4 +3,6 @@ project(CalculatorApp)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(Calculator src/main.cpp)
+file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.cpp src/*.h)
+
+add_executable(Calculator ${SRC_FILES})
