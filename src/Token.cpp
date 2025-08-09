@@ -9,10 +9,10 @@ std::ostream& calc::operator<<(std::ostream& os, const Token& token) {
 int calc::precedence(Op op) {
 	switch (op) {
 		case Op::Plus:  return 1;
-		case Op::Minus: return 1;   // + -
+		case Op::Minus: return 1;
 		case Op::Mul:   return 2;
-		case Op::Div:   return 2;   // * /
-		case Op::Pow:   return 3;   // ^
+		case Op::Div:   return 2;
+		case Op::Pow:   return 3;
 	}
 	return 0;
 }

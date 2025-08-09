@@ -5,14 +5,14 @@
 #include <vector>
 
 namespace calc {
-	enum class TokenType {
+	enum class TokenType : uint8_t {
 		Number,
 		Operator,
 		LeftParen,
 		RightParen
 	};
 
-	enum class Op {
+	enum class Op : uint8_t {
 		Plus,
 		Minus,
 		Mul,
@@ -21,17 +21,17 @@ namespace calc {
 	};
 
 	struct Token {
-		TokenType type;
-		std::string value; // original text (useful for debuging/printing)
-		double number;	   // valid if kind == Number
-		Op op;			   // valid if kind == Operator
+		TokenType type = TokenType::Number;
+		std::string value{}; // original text (useful for debuging/printing)
+		double number = 0.0; // valid if kind == Number
+		Op op = Op::Plus;	 // valid if kind == Operator
 	};
 
 	std::ostream& operator<<(std::ostream& os, const Token& token);
 
 	int precedence(Op op);
 	bool leftAssociative(Op op);
-	static bool charToOp(char c, Op& out);
+	bool charToOp(char c, Op& out);
 
 	std::vector<Token> tokenize(const std::string& input);
 }
