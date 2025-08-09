@@ -1,10 +1,9 @@
 #include <iostream>
-#include "Token.h"
+#include "Parser.h"
 
 int main() {
-	for (const auto& token : calc::tokenize("12.5 + (2 * 4)")) {
-		std::cout << token;
-	}
+	std::string s = "1 + (2 + 3) * 2";
+	std::cout << "Result: " << calc::evaluate(s) << "\n";
 
 	return 0;
 }
