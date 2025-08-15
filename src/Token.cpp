@@ -1,4 +1,4 @@
-﻿#include "Token.h"
+﻿#include "calculator/Token.h"
 #include <iostream>
 
 std::ostream& calc::operator<<(std::ostream& os, const Token& token) {
