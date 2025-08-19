@@ -87,7 +87,7 @@ double calc::evalPostfix(const std::vector<calc::Token>& rpn) {
 			case Op::Minus: res = left - right; break;
 			case Op::Mul: res = left * right; break;
 			case Op::Div:
-				if (right == 0.0) std::cerr << "Division by zero\n"; break;
+				//if (right == 0.0) std::cerr << "Division by zero\n"; break;
 				res = left / right;
 				break;
 			case Op::Pow: res = std::pow(left, right); break;
