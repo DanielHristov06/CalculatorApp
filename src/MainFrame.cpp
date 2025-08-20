@@ -8,7 +8,7 @@ MainFrame::MainFrame(const wxString& title, const wxSize& size) : wxFrame(nullpt
 	wxPanel* panel = new wxPanel(this);
 	wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
-	mDisplay = new wxStaticText(panel, wxID_ANY, "0", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_START | wxBORDER_NONE);
+	mDisplay = new wxTextCtrl(panel, wxID_ANY, "0", wxDefaultPosition, wxDefaultSize, wxTE_READONLY | wxTE_RIGHT | wxBORDER_NONE);
 	mDisplay->SetFont(wxFontInfo(24));
 	vbox->Add(mDisplay, 0, wxEXPAND | wxLEFT | wxTOP | wxBOTTOM, 25);
 
@@ -41,27 +41,22 @@ MainFrame::MainFrame(const wxString& title, const wxSize& size) : wxFrame(nullpt
 void MainFrame::OnButton(wxCommandEvent& e) {
 	wxButton* b = wxDynamicCast(e.GetEventObject(), wxButton);
 	if (!b) return;
-	AppendToDisplay(b->GetLabel());
+	const wxString t = b->GetLabel();
+	if (mDisplay->GetValue() == "0") mDisplay->Clear();
+	mDisplay->AppendText(t);
 }
 
 void MainFrame::OnClear(wxCommandEvent& e) {
-	mDisplay->SetLabel("0");
+	mDisplay->SetValue("0");
 }
 
 void MainFrame::OnBackspace(wxCommandEvent& e) {
-	wxString s = mDisplay->GetLabel();
-	if (s.size() <= 1) mDisplay->SetLabel("0");
-	else { s.RemoveLast(); mDisplay->SetLabel(s); }
+	wxString s = mDisplay->GetValue();
+	if (s.size() <= 1) mDisplay->SetValue("0");
+	else { s.RemoveLast(); mDisplay->SetValue(s); }
 }
 
 void MainFrame::OnEquals(wxCommandEvent& e) {
-	const std::string expr = mDisplay->GetLabel().ToStdString();
-	mDisplay->SetLabel(wxString::Format("%g", calc::evaluate(expr)));
-}
-
-void MainFrame::AppendToDisplay(const wxString& s) {
-	wxString t = mDisplay->GetLabel();
-	if (t == "0") t.clear();
-	t += s;
-	mDisplay->SetLabel(t);
+	const std::string expr = mDisplay->GetValue().ToStdString();
+	mDisplay->SetValue(wxString::Format("%g", calc::evaluate(expr)));
 }

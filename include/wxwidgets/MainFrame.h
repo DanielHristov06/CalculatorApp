@@ -6,12 +6,10 @@ public:
 	MainFrame(const wxString& title, const wxSize& size);
 
 private:
-	wxStaticText* mDisplay = nullptr;
+	wxTextCtrl* mDisplay = nullptr;
 
 	void OnButton(wxCommandEvent& e);
 	void OnClear(wxCommandEvent& e);
 	void OnBackspace(wxCommandEvent& e);
 	void OnEquals(wxCommandEvent& e);
-
-	void AppendToDisplay(const wxString& s);
 };
