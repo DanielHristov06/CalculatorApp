@@ -45,23 +45,35 @@ MainFrame::MainFrame(const wxString& title, const wxSize& size) : wxFrame(nullpt
 void MainFrame::OnButton(wxCommandEvent& e) {
 	const wxButton* b = wxStaticCast(e.GetEventObject(), wxButton);
 	if (!b) return;
+
+	auto IsOp = [](wxUniChar c) { return wxString("+-*/").Find(c) != wxNOT_FOUND; };
+	auto IsNum = [](wxUniChar c) { return c != 0 && wxIsdigit(c); };
+
 	const wxString label = b->GetLabel();
+	const wxString expr = mExpr->GetValue();
+	const bool empty = expr.IsEmpty();
+	const wxUniChar last = empty ? wxUniChar(0) : expr.Last();
+	const wxString cur = mDisplay->GetValue();
 
 	if (label.size() == 1 && IsOp(label[0])) {
 		const wxChar op = label[0];
 
-		const wxString cur = mDisplay->GetValue();
 		if (!(cur == "0" || cur.empty())) {
 			mExpr->AppendText(cur);
 			mDisplay->SetValue("0");
 		}
+		
+		const wxString expr2 = mExpr->GetValue();
+		const bool empty2 = expr2.IsEmpty();
+		if (empty2) return;
+		const wxUniChar last2 = empty2 ? wxUniChar(0) : expr2.Last();
 
-		wxString expr = mExpr->GetValue();
-		if (expr.empty()) return;
-
-		if (!expr.empty() && IsOp(expr.Last())) {
-			expr.Last() = op;
-			mExpr->SetValue(expr);
+		if (IsOp(last2)) {
+			expr2.Last() = op;
+			mExpr->SetValue(expr2);
+		}
+		else if (last2 == '(') {
+			return;
 		}
 		else {
 			mExpr->AppendText(wxString(op));
@@ -70,15 +82,35 @@ void MainFrame::OnButton(wxCommandEvent& e) {
 	}
 
 	if (label == "(") {
-		mExpr->AppendText(label);
+		if (empty || IsOp(last) || last == '(') {
+			mExpr->AppendText(label);
+			++parenDepth;
+		}
 		return;
 	}
 	else if (label == ")") {
-		if (!IsOp(mExpr->GetValue().Last()) && mExpr->GetValue().Last() != '(') {
-			mExpr->AppendText(label);
-			return;
+		if (parenDepth <= 0) return;
+
+		wxString expr2 = mExpr->GetValue();
+		bool empty2 = expr2.IsEmpty();
+		wxUniChar last2 = empty2 ? wxUniChar(0) : expr2.Last();
+
+		const wxString cur = mDisplay->GetValue();
+		if ((empty2 || IsOp(last2) || last2 == '(') && !(cur == "0" || cur.empty())) {
+			mExpr->AppendText(cur);
+			mDisplay->SetValue("0");
+
+			// recompute after flush
+			expr2 = mExpr->GetValue();
+			empty2 = expr2.IsEmpty();
+			last2 = empty2 ? wxUniChar(0) : expr2.Last();
 		}
-		else return;
+
+		if (!empty2 && (IsNum(last2) || last2 == ')')) {
+			mExpr->AppendText(")");
+			--parenDepth;
+		}
+		return;
 	}
 
 	if (mDisplay->GetValue() == "0" && label != ".") {
@@ -100,12 +132,8 @@ void MainFrame::OnBackspace(wxCommandEvent& e) {
 }
 
 void MainFrame::OnEquals(wxCommandEvent& e) {
-	mExpr->AppendText(mDisplay->GetValue());
+	if (mDisplay->GetValue() != "0") mExpr->AppendText(mDisplay->GetValue());
 	const std::string expr = mExpr->GetValue().ToStdString();
 	mDisplay->SetValue(wxString::Format("%g", calc::evaluate(expr)));
 	mExpr->SetValue("");
-}
-
-bool MainFrame::IsOp(const wxChar& c) {
-	return wxString("+-*/").Find(c) != wxNOT_FOUND;
 }

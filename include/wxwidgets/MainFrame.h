@@ -6,6 +6,8 @@ public:
 	MainFrame(const wxString& title, const wxSize& size);
 
 private:
+	int parenDepth = 0;
+
 	wxTextCtrl* mExpr = nullptr;
 	wxTextCtrl* mDisplay = nullptr;
 
@@ -13,6 +15,4 @@ private:
 	void OnClear(wxCommandEvent& e);
 	void OnBackspace(wxCommandEvent& e);
 	void OnEquals(wxCommandEvent& e);
-
-	bool IsOp(const wxChar& c);
 };
