@@ -7,9 +7,12 @@ public:
 
 private:
 	int parenDepth = 0;
+	bool mError = false;
 
 	wxTextCtrl* mExpr = nullptr;
 	wxTextCtrl* mDisplay = nullptr;
+
+	void ResetAll();
 
 	void OnButton(wxCommandEvent& e);
 	void OnClear(wxCommandEvent& e);

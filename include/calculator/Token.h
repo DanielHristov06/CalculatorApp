@@ -3,6 +3,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <expected>
 
 namespace calc {
 	enum class TokenType : uint8_t {
@@ -33,5 +34,5 @@ namespace calc {
 	bool leftAssociative(Op op);
 	bool charToOp(char c, Op& out);
 
-	std::vector<Token> tokenize(const std::string& input);
+	std::expected<std::vector<Token>, std::string> tokenize(const std::string& input);
 }

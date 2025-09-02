@@ -42,9 +42,18 @@ MainFrame::MainFrame(const wxString& title, const wxSize& size) : wxFrame(nullpt
 	panel->Layout();
 }
 
+void MainFrame::ResetAll() {
+	mDisplay->SetValue("0");
+	mExpr->SetValue("");
+	parenDepth = 0;
+	mError = false;
+}
+
 void MainFrame::OnButton(wxCommandEvent& e) {
 	const wxButton* b = wxStaticCast(e.GetEventObject(), wxButton);
 	if (!b) return;
+
+	if (mError) ResetAll();
 
 	auto IsOp = [](wxUniChar c) { return wxString("+-*/").Find(c) != wxNOT_FOUND; };
 	auto IsNum = [](wxUniChar c) { return c != 0 && wxIsdigit(c); };
@@ -100,7 +109,6 @@ void MainFrame::OnButton(wxCommandEvent& e) {
 			mExpr->AppendText(cur);
 			mDisplay->SetValue("0");
 
-			// recompute after flush
 			expr2 = mExpr->GetValue();
 			empty2 = expr2.IsEmpty();
 			last2 = empty2 ? wxUniChar(0) : expr2.Last();
@@ -121,19 +129,44 @@ void MainFrame::OnButton(wxCommandEvent& e) {
 }
 
 void MainFrame::OnClear(wxCommandEvent& e) {
-	mDisplay->SetValue("0");
-	mExpr->SetValue("");
+	ResetAll();
 }
 
 void MainFrame::OnBackspace(wxCommandEvent& e) {
+	if (mError) {
+		ResetAll();
+		return;
+	}
+
 	wxString s = mDisplay->GetValue();
 	if (s.size() <= 1) mDisplay->SetValue("0");
 	else { s.RemoveLast(); mDisplay->SetValue(s); }
 }
 
 void MainFrame::OnEquals(wxCommandEvent& e) {
-	if (mDisplay->GetValue() != "0") mExpr->AppendText(mDisplay->GetValue());
+	if (mError) {
+		ResetAll();
+		return;
+	}
+
+	const wxString cur = mDisplay->GetValue();
+	if (!(cur == "0" || cur.empty())) {
+		mExpr->AppendText(cur);
+	}
+
 	const std::string expr = mExpr->GetValue().ToStdString();
-	mDisplay->SetValue(wxString::Format("%g", calc::evaluate(expr)));
+
+	auto res = calc::evaluate(expr);
+	if (!res) {
+		mDisplay->SetValue(wxString::FromUTF8(res.error().c_str()));
+		mExpr->SetValue("");
+		parenDepth = 0;
+		mError = true;
+		return;
+	}
+
+	mDisplay->SetValue(wxString::Format("%.15g", *res));
 	mExpr->SetValue("");
+	parenDepth = 0;
+	mError = false;
 }

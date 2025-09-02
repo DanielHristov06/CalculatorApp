@@ -1,14 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <expected>
 #include "Token.h"
 
 namespace calc {
 	// Convert infix to postfix (RPN)
-	std::vector<Token> toPostfix(const std::vector<Token>& infix);
+	std::expected<std::vector<Token>, std::string> toPostfix(const std::vector<Token>& infix);
 
 	// Evaluate a postfix token stream and return the rsult
-	double evalPostfix(const std::vector<Token>& rpn);
+	std::expected<double, std::string> evalPostfix(const std::vector<Token>& rpn);
 
-	double evaluate(const std::string& expr);
+	std::expected<double, std::string> evaluate(const std::string& expr);
 }
